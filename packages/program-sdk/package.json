@@ -1,0 +1,29 @@
+{
+  "name": "@apec-learning/program-sdk",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "build": "codama run js && tsdown"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@codama/nodes-from-anchor": "^1.2.9",
+    "@codama/renderers-js": "^1.4.3",
+    "@solana/kit": "^5.0.0",
+    "codama": "^1.3.7"
+  }
+}

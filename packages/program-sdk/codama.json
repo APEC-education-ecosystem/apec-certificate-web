@@ -1,0 +1,10 @@
+{
+  "idl": "idls/apec-cert.json",
+  "before": [],
+  "scripts": {
+    "js": {
+      "from": "@codama/renderers-js",
+      "args": ["src"]
+    }
+  }
+}
