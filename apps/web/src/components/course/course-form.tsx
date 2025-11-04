@@ -26,6 +26,7 @@ import {
 } from "../ui/form";
 import { generateIdFromTimestamp } from "@/lib/utils";
 import { useApecProgram } from "@/hooks/use-apec-program";
+import { uploadToSupabase } from "@/server/storage";
 
 // Define the form schema with validation
 const courseFormSchema = z.object({
@@ -81,10 +82,11 @@ const courseFormSchema = z.object({
 export type CourseFormValues = z.infer<typeof courseFormSchema>;
 
 type Props = {
-  courseId: number;
   onComplete?: () => void;
 };
-const CourseForm = ({ onComplete, courseId }: Props) => {
+const CourseForm = ({ onComplete }: Props) => {
+  const courseId = generateIdFromTimestamp();
+
   const { createCourse } = useApecProgram();
 
   const form = useForm<CourseFormValues>({
@@ -99,18 +101,33 @@ const CourseForm = ({ onComplete, courseId }: Props) => {
 
   async function handleSubmit(values: CourseFormValues) {
     try {
-      const result = await createCourse.mutateAsync({
-        id: courseId,
-        fullName: values.fullName,
-        shortName: values.shortName,
-        description: values.description,
-      });
+      if (!values.image) {
+        console.error("Course image is required.");
+        return;
+      }
 
-      if (result?.success) {
-        // Reset form on successful submission
-        form.reset();
-        onComplete?.();
-        console.log("Course created successfully!", result.signature);
+      // Upload image first
+      const uploadResult = await uploadToSupabase(
+        values.image,
+        `image_${courseId}`,
+        process.env.NEXT_PUBLIC_STORAGE_COURSE_BUCKET!
+      );
+
+      if (uploadResult.success) {
+        // Then create course with image URL
+        const result = await createCourse.mutateAsync({
+          id: courseId,
+          fullName: values.fullName,
+          shortName: values.shortName,
+          description: values.description,
+        });
+
+        if (result?.success) {
+          // Reset form on successful submission
+          form.reset();
+          onComplete?.();
+          console.log("Course created successfully!", result.signature);
+        }
       }
     } catch (error) {
       console.error("Error creating course:", error);
@@ -226,7 +243,6 @@ const CourseForm = ({ onComplete, courseId }: Props) => {
                       description="PNG, JPG, WebP up to 5MB"
                       bucket={process.env.NEXT_PUBLIC_STORAGE_COURSE_BUCKET}
                       filePath={`image_${courseId}`}
-                      autoUpload
                     />
                   </FormControl>
                   <FormDescription className="text-gray-500 dark:text-gray-400">

@@ -1,145 +1,169 @@
 "use client";
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
-  User,
+  Calendar,
   ExternalLink,
-  Hash,
-  CheckCircle,
-  Clock,
+  Check,
   Loader2,
   FingerprintIcon,
-  FileBoxIcon,
 } from "lucide-react";
+import CopyIconButton from "@/components/copy-icon-button";
 import { getExplorerUrl } from "@/lib/network";
 import { useApecProgram } from "@/hooks/use-apec-program";
+import type { Certificate } from "@/lib/types";
+import { format } from "date-fns";
+import { getCourseImageProxyUrl } from "@/lib/utils";
+import Image from "next/image";
 
 type CertificateCardProps = {
-  courseId: string;
-  certificate: {
-    id: number;
-    name: string;
-    wallet: string;
-    nftMint: string | null;
-    txHash: string | null;
-    created_at: Date;
-  };
+  certificate: Certificate;
+  showMintButton?: boolean;
 };
 
 const CertificateCard: React.FC<CertificateCardProps> = ({
   certificate,
-  courseId,
+  showMintButton = false,
 }) => {
   const { claimCertificate } = useApecProgram();
+
   const { mutate, isPending } = claimCertificate(
-    Number(courseId),
+    certificate.courseId,
     certificate.id,
     certificate.wallet
   );
+
+  const courseImageUrl = useMemo(() => {
+    return getCourseImageProxyUrl(certificate.courseId);
+  }, [certificate.courseId]);
+
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <CardTitle
-              className="text-lg font-semibold line-clamp-1"
-              title={certificate.name}
-            >
-              {certificate.name}
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              ID: #{certificate.id}
-            </p>
-          </div>
-          <Badge
-            variant={certificate.nftMint ? "default" : "secondary"}
-            className="shrink-0"
-          >
-            {certificate.nftMint ? (
-              <CheckCircle className="h-3 w-3 mr-1" />
-            ) : (
-              <Clock className="h-3 w-3 mr-1" />
-            )}
-            {certificate.nftMint ? "Minted" : "Pending"}
-          </Badge>
+    <div className="group relative overflow-hidden rounded-lg border bg-linear-to-br from-primary/5 via-background to-background p-5 transition-all hover:shadow-lg hover:border-primary/50 flex flex-col">
+      {/* Certificate Icon/Badge */}
+      <div className="absolute top-4 right-4 ">
+        <div className="relative aspect-video overflow-hidden bg-muted h-20 border rounded">
+          <Image
+            src={courseImageUrl}
+            alt={certificate.name}
+            fill
+            className="object-contain p-2"
+          />
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-3">
-        {/* Wallet */}
-        <div className="flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-muted-foreground shrink-0" />
-          <a
-            href={getExplorerUrl(certificate.wallet, "address")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-xs hover:text-primary transition-colors truncate flex items-center gap-1"
-          >
-            {certificate.wallet.slice(0, 8)}...{certificate.wallet.slice(-8)}
-            <ExternalLink className="h-3 w-3 shrink-0" />
-          </a>
+      {/* Certificate Content */}
+      <div className="relative space-y-3 flex-1">
+        {/* Certificate Name */}
+        <div>
+          <h3 className="font-semibold text-lg line-clamp-2 mb-1">
+            {certificate.name}
+          </h3>
+          {certificate.course && (
+            <Badge variant="secondary" className="text-xs">
+              {certificate.course.shortName}
+            </Badge>
+          )}
         </div>
 
-        {/* NFT Mint */}
+        {/* Issue Date */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span>
+            Issued on{" "}
+            {certificate.created_at
+              ? format(new Date(certificate.created_at), "MMMM d, yyyy")
+              : "Unknown"}
+          </span>
+        </div>
+
+        <Separator />
+
+        {/* NFT & Transaction Details */}
+        <div className="space-y-2">
+          {certificate.nftMint ? (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">
+                NFT Certificate
+              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-xs truncate flex-1">
+                  {certificate.nftMint}
+                </p>
+                <CopyIconButton content={certificate.nftMint} />
+                <a
+                  href={getExplorerUrl(certificate.nftMint, "address")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />
+              <span>NFT minting pending</span>
+            </div>
+          )}
+
+          {certificate.txHash && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">
+                Transaction
+              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-xs truncate flex-1">
+                  {certificate.txHash}
+                </p>
+                <CopyIconButton content={certificate.txHash} />
+                <a
+                  href={getExplorerUrl(certificate.txHash, "tx")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Verification Badge */}
         {certificate.nftMint && (
-          <div className="flex items-center gap-2 text-sm">
-            <FileBoxIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-            <a
-              href={getExplorerUrl(certificate.nftMint, "address")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-xs hover:text-primary transition-colors truncate flex items-center gap-1"
+          <div className="pt-2">
+            <Badge
+              variant="default"
+              className="gap-1 bg-green-600 hover:bg-green-700"
             >
-              {certificate.nftMint.slice(0, 8)}...
-              {certificate.nftMint.slice(-8)}
-              <ExternalLink className="h-3 w-3 shrink-0" />
-            </a>
+              <Check className="h-3 w-3" />
+              Verified on Solana
+            </Badge>
           </div>
         )}
+      </div>
 
-        {/* Transaction Hash */}
-        {certificate.txHash && (
-          <div className="flex items-center gap-2 text-sm">
-            <Hash className="h-4 w-4 text-muted-foreground shrink-0" />
-            <a
-              href={getExplorerUrl(certificate.txHash)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-xs hover:text-primary transition-colors truncate flex items-center gap-1"
-            >
-              TX: {certificate.txHash.slice(0, 6)}...
-              {certificate.txHash.slice(-6)}
-              <ExternalLink className="h-3 w-3 shrink-0" />
-            </a>
-          </div>
-        )}
-
-        {/* Created Date */}
-        <div className="text-xs text-muted-foreground pt-2 border-t">
-          Created: {new Date(certificate.created_at).toLocaleString()}
-        </div>
-
-        {/* Action Button */}
-        {!certificate.nftMint && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full mt-2"
-            disabled={isPending}
-            onClick={() => mutate()}
-          >
-            {isPending ? (
-              <Loader2 className="size-4 mr-2 animate-spin" />
-            ) : (
-              <FingerprintIcon className="size-4 mr-2" />
-            )}
-            Mint Certificate
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+      {/* Mint Button - only shown when showMintButton is true */}
+      {showMintButton && !certificate.nftMint && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full mt-3"
+          disabled={isPending}
+          onClick={() => mutate()}
+        >
+          {isPending ? (
+            <Loader2 className="size-4 mr-2 animate-spin" />
+          ) : (
+            <FingerprintIcon className="size-4 mr-2" />
+          )}
+          Mint Certificate
+        </Button>
+      )}
+    </div>
   );
 };
 

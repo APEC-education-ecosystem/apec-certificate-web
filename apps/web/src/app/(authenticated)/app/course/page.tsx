@@ -1,13 +1,10 @@
 import { Suspense } from "react";
 import CourseTableWrapper from "@/components/course/course-table-wrapper";
 import CourseTableLoading from "@/components/course/course-table-loading";
-import { getMyCourses } from "@/server/course";
-import { BookOpen, Users, Award } from "lucide-react";
+import { CourseStatsSection } from "@/components/course/course-stats-section";
+import { BookOpen } from "lucide-react";
 
 const CourseManagementPage = async () => {
-  // Get courses count for stats (could be optimized with a count query)
-  const coursesPromise = getMyCourses();
-
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -45,7 +42,7 @@ const CourseManagementPage = async () => {
             </div>
           }
         >
-          <StatsSection coursesPromise={coursesPromise} />
+          <CourseStatsSection />
         </Suspense>
 
         {/* Course Management Section */}
@@ -65,54 +62,6 @@ const CourseManagementPage = async () => {
             recognized.
           </p>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const StatsSection = async ({
-  coursesPromise,
-}: {
-  coursesPromise: ReturnType<typeof getMyCourses>;
-}) => {
-  const courses = await coursesPromise;
-
-  return (
-    <div className="grid md:grid-cols-3 gap-6 mb-12">
-      <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
-        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full w-fit mx-auto mb-4">
-          <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-        </div>
-        <h3 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
-          {courses.length}
-        </h3>
-        <p className="text-gray-600 dark:text-gray-300 text-sm">
-          Total Courses
-        </p>
-      </div>
-
-      <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
-        <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full w-fit mx-auto mb-4">
-          <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-        </div>
-        <h3 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
-          0
-        </h3>
-        <p className="text-gray-600 dark:text-gray-300 text-sm">
-          Total Students
-        </p>
-      </div>
-
-      <div className="text-center p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
-        <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full w-fit mx-auto mb-4">
-          <Award className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-        </div>
-        <h3 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
-          0
-        </h3>
-        <p className="text-gray-600 dark:text-gray-300 text-sm">
-          Certificates Issued
-        </p>
       </div>
     </div>
   );

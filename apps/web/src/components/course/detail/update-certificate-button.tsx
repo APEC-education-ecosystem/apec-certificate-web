@@ -94,7 +94,6 @@ const UpdateCertificateButton: React.FC<Props> = ({
     setError(null);
 
     try {
-      // TODO: Implement certificate update logic here
       const result = await updateCertificateProof.mutateAsync({
         courseId: Number(courseId),
         certList: parsedData,

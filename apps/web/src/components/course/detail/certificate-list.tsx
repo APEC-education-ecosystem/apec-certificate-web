@@ -2,27 +2,15 @@
 import React, { useState } from "react";
 import CertificateCard from "./certificate-card";
 import { Button } from "@/components/ui/button";
-
-type Certificate = {
-  id: number;
-  name: string;
-  wallet: string;
-  nftMint: string | null;
-  txHash: string | null;
-  created_at: Date;
-};
+import type { Certificate } from "@/lib/types";
 
 type CertificateListProps = {
-  courseId: string;
   certificates: Certificate[];
 };
 
 type FilterType = "all" | "minted" | "pending";
 
-const CertificateList: React.FC<CertificateListProps> = ({
-  certificates,
-  courseId,
-}) => {
+const CertificateList: React.FC<CertificateListProps> = ({ certificates }) => {
   const [filter, setFilter] = useState<FilterType>("all");
 
   const filteredCertificates = certificates.filter((cert) => {
@@ -75,10 +63,7 @@ const CertificateList: React.FC<CertificateListProps> = ({
           </div>
         </div>
 
-        <CertificateGrid
-          certificates={filteredCertificates}
-          courseId={courseId}
-        />
+        <CertificateGrid certificates={filteredCertificates} />
       </div>
     </div>
   );
@@ -86,8 +71,7 @@ const CertificateList: React.FC<CertificateListProps> = ({
 
 const CertificateGrid: React.FC<{
   certificates: Certificate[];
-  courseId: string;
-}> = ({ certificates, courseId }) => {
+}> = ({ certificates }) => {
   if (certificates.length === 0) {
     return (
       <div className="text-center py-12">
@@ -102,7 +86,7 @@ const CertificateGrid: React.FC<{
         <CertificateCard
           key={certificate.id}
           certificate={certificate}
-          courseId={courseId}
+          showMintButton={true}
         />
       ))}
     </div>

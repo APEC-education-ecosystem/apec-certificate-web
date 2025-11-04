@@ -10,11 +10,13 @@ import {
   getDbCertificatesByCourseId,
   getDbCourseById,
   updateDbCertificateNftMint,
+  getDbStatisticsCourseByCreator,
 } from "@apec-learning/db";
 import { getUser } from "./user-action";
 import { privyServerClient } from "@/lib/privy";
 import { getSupabasePublicUrl } from "./storage";
 import { revalidatePath } from "next/cache";
+import { getCourseImageProxyUrl } from "@/lib/utils";
 
 type NewCourse = typeof dbCourse.$inferInsert;
 export const insertCourse = async (params: NewCourse) => {
@@ -65,10 +67,7 @@ export const getMyCourses = async () => {
   return Promise.all(
     coursesFromDb.map(async (course) => ({
       ...course,
-      image: await getSupabasePublicUrl(
-        process.env.NEXT_PUBLIC_STORAGE_COURSE_BUCKET!,
-        `image_${course.id}`
-      ),
+      image: getCourseImageProxyUrl(course.id),
     }))
   );
 };
@@ -83,10 +82,7 @@ export const getCourseById = async (id: string) => {
     return null;
   }
 
-  const image = await getSupabasePublicUrl(
-    process.env.NEXT_PUBLIC_STORAGE_COURSE_BUCKET!,
-    `image_${course.id}`
-  );
+  const image = getCourseImageProxyUrl(course.id);
 
   return {
     ...course,
@@ -106,4 +102,33 @@ export const updateCertificate = async (
     revalidatePath(`/app/course/${courseId}`);
   }
   return result;
+};
+
+export const getStatisticsCourseByCreator = async (creator?: string) => {
+  if (!creator) {
+    const user = await getUser();
+
+    if (!user.data?.success) {
+      return {
+        totalCourses: 0,
+        totalCertificates: 0,
+        totalMintedCertificates: 0,
+      };
+    }
+    const wallets = await privyServerClient
+      .wallets()
+      .list({ chain_type: "solana", user_id: user.data?.data?.id || "" });
+
+    const currentWallet = wallets.data[0];
+    if (!currentWallet) {
+      return {
+        totalCourses: 0,
+        totalCertificates: 0,
+        totalMintedCertificates: 0,
+      };
+    }
+
+    creator = currentWallet.address;
+  }
+  return getDbStatisticsCourseByCreator(creator);
 };

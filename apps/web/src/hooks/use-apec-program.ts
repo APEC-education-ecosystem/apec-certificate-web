@@ -70,7 +70,7 @@ export const useApecProgram = () => {
   const initProvider = useMutation({
     mutationKey: ["init-provider"],
     mutationFn: async (args: {
-      id: number;
+      id: MyId;
       fullName: string;
       shortName: string;
       address: string;
@@ -92,7 +92,7 @@ export const useApecProgram = () => {
 
         const initProviderInstruction = getInitProviderInstruction({
           authority: createNoopSigner(address(wallet.address)),
-          id: args.id,
+          id: BigInt(args.id),
           shortName: args.shortName,
           provider,
         });
@@ -148,7 +148,7 @@ export const useApecProgram = () => {
   const createCourse = useMutation({
     mutationKey: ["create-course"],
     mutationFn: async (args: {
-      id: number;
+      id: MyId;
       fullName: string;
       shortName: string;
       description: string;
@@ -179,7 +179,7 @@ export const useApecProgram = () => {
 
         const createCourseInstruction = getCreateCourseInstruction({
           authority: createNoopSigner(address(wallet.address)),
-          id: args.id,
+          id: BigInt(args.id),
           shortName: args.shortName,
           course,
           provider,
@@ -238,7 +238,7 @@ export const useApecProgram = () => {
   const updateCertificateProof = useMutation({
     mutationKey: ["update-certificate"],
     mutationFn: async (args: {
-      courseId: number;
+      courseId: MyId;
       certList: CertificateItem[];
     }) => {
       let loadingToastId: string | number | undefined;
@@ -264,7 +264,7 @@ export const useApecProgram = () => {
         const [providerAddress] = await getProviderAddress(providerRecord.id);
         const [courseAddress] = await getCourseAddress(
           providerAddress,
-          args.courseId
+          BigInt(args.courseId)
         );
 
         const merkleTreeRoot: Uint8Array = getMerkleRoot(
@@ -337,11 +337,7 @@ export const useApecProgram = () => {
     },
   });
 
-  const claimCertificate = (
-    courseId: number,
-    certId: number,
-    claimer: string
-  ) =>
+  const claimCertificate = (courseId: MyId, certId: number, claimer: string) =>
     useMutation({
       mutationKey: ["claim-certificate", courseId, certId, claimer],
       mutationFn: async () => {
@@ -520,5 +516,6 @@ export const useApecProgram = () => {
     updateCertificateProof,
     getCertificateAddress,
     claimCertificate,
+    getCertProofAddress,
   };
 };

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PAGES = ["/", "/login", "/refresh"];
+const PUBLIC_PAGES = ["/login", "/refresh", "/"];
 
 // Public static asset extensions that don't require authentication
 const PUBLIC_ASSETS = [
@@ -18,8 +18,15 @@ export function proxy(req: NextRequest) {
   const cookieSession = req.cookies.get("privy-session");
   const { pathname, searchParams } = req.nextUrl;
 
+  // Skip middleware for image proxy routes
+  if (pathname.startsWith("/image/")) {
+    console.log("Skipping middleware for image route:", pathname);
+    return NextResponse.next();
+  }
+
   // Skip middleware for public pages
   if (PUBLIC_PAGES.includes(pathname)) {
+    console.log("Skipping middleware for public page:", pathname);
     return NextResponse.next();
   }
 
@@ -50,7 +57,7 @@ export function proxy(req: NextRequest) {
 
   // Handle unauthenticated cases
   if (!definitelyAuthenticated && !maybeAuthenticated) {
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = new URL("/", req.url);
     // Ensure redirect_uri is the current page path
     loginUrl.searchParams.set("redirect_uri", pathname);
     return NextResponse.redirect(loginUrl);

@@ -45,7 +45,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
           <div className="absolute top-3 right-3 z-10">
             <Badge
               variant="secondary"
-              className="text-[10px] sm:text-xs px-2 py-1 font-medium shadow-lg backdrop-blur-sm bg-white/90 dark:bg-gray-800/90"
+              className="text-[10px] sm:text-xs px-2 py-1 font-medium shadow-lg backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 uppercase"
             >
               {course.shortName}
             </Badge>

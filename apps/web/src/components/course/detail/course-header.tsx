@@ -39,7 +39,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <Badge className="text-sm">{course.shortName}</Badge>
+              <Badge className="text-xs text-white">{course.shortName}</Badge>
               <Badge
                 variant="outline"
                 className="text-xs bg-green-500 text-white border-0"
@@ -92,10 +92,12 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
               </div>
             )}
 
-            <UpdateCertificateButton
-              courseId={course.id}
-              creatorWallet={course.creator}
-            />
+            {course.certificates.length === 0 ? (
+              <UpdateCertificateButton
+                courseId={course.id}
+                creatorWallet={course.creator}
+              />
+            ) : null}
           </div>
         </div>
       </div>

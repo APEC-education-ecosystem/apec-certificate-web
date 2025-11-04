@@ -21,7 +21,7 @@ export const uploadToSupabase = async (
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: "3600",
-        upsert: false,
+        upsert: true,
       });
 
     if (error) {

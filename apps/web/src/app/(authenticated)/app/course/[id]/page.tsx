@@ -43,7 +43,7 @@ const CourseDetailPage = async ({ params }: Props) => {
 
           {/* Part 3: Certificate List */}
           <Suspense fallback={<CertificateListSkeleton />}>
-            <CertificateList certificates={certificates} courseId={course.id} />
+            <CertificateList certificates={certificates} />
           </Suspense>
         </div>
       </div>

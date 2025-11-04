@@ -1,6 +1,6 @@
 "use client";
 
-import { CopyIcon, LogOutIcon } from "lucide-react";
+import { CopyIcon, LogOutIcon, UserCircleIcon } from "lucide-react";
 
 import type { User } from "@privy-io/node";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ import { Skeleton } from "./ui/skeleton";
 import LoginButton from "./login-button";
 import { handleCopyText } from "@/lib/utils";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function UserProfile() {
   const { logout, authenticated } = usePrivy();
@@ -41,6 +42,12 @@ export default function UserProfile() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem asChild>
+          <Link href="/app/profile">
+            <UserCircleIcon className="mr-2 h-4 w-4" />
+            Profile
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             handleCopyText(account.address);

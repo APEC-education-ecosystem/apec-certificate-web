@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { db, dbCertificate, type NewCertificate } from "..";
 
 export const insertDbCertificateToCourse = async (params: NewCertificate[]) => {
@@ -49,4 +49,29 @@ export const updateDbCertificateNftMint = async (
   return {
     success: result.rowCount === 1,
   };
+};
+
+export const getDbCertificateByUser = async (
+  walletAddress: string,
+  all: boolean = false
+) => {
+  // if all = true then get all certificates including minted ones
+  const certificates = await db.query.dbCertificate.findMany({
+    where: !all
+      ? and(
+          eq(dbCertificate.wallet, walletAddress),
+          isNotNull(dbCertificate.nftMint)
+        )
+      : eq(dbCertificate.wallet, walletAddress),
+    with: {
+      course: {
+        columns: {
+          name: true,
+          shortName: true,
+        },
+      },
+    },
+  });
+
+  return certificates;
 };

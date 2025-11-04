@@ -1,3 +1,6 @@
+import type { getCertificatesByUser } from "@/server/certificate";
+import type { getCourseById } from "@/server/course";
+
 export interface SupabaseUploadOptions {
   bucket: string;
   folder?: string;
@@ -25,3 +28,9 @@ export interface CertificateItem {
 }
 
 export type MyId = string | number | bigint;
+
+export type Certificate =
+  | NonNullable<
+      Awaited<ReturnType<typeof getCourseById>>
+    >["certificates"][number]
+  | NonNullable<Awaited<ReturnType<typeof getCertificatesByUser>>>[number];
