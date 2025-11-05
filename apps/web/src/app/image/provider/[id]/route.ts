@@ -1,39 +1,21 @@
-import { getCourseImageUrl, getProviderImageUrl } from "@/lib/utils";
+import { getProviderImageUrl } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
-
-const IMAGE_URL_FETCHERS = {
-  course: getCourseImageUrl,
-  provider: getProviderImageUrl,
-} as const;
-
-type ImageType = keyof typeof IMAGE_URL_FETCHERS;
 
 type RouteParams = {
   params: Promise<{
-    type: string;
     id: string;
   }>;
 };
-
-const isValidType = (value: string): value is ImageType =>
-  value in IMAGE_URL_FETCHERS;
 
 // Cache for 1 hour, revalidate in background
 export const revalidate = 3600;
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
-  const { type, id } = await params;
-  // id has format 1762223016266&w=1920&q=75, i want to remove all query string
+  const { id } = await params;
   const cleanId = id.split("&")[0];
-  console.log("Image proxy request for type:", type, "id:", cleanId);
-  if (!isValidType(type)) {
-    return NextResponse.json({ error: "Invalid image type" }, { status: 400 });
-  }
-
-  const getImageUrl = IMAGE_URL_FETCHERS[type];
 
   try {
-    const upstreamUrl = await getImageUrl(cleanId);
+    const upstreamUrl = await getProviderImageUrl(cleanId);
 
     const upstreamResponse = await fetch(upstreamUrl, {
       // Enable Next.js caching for upstream requests

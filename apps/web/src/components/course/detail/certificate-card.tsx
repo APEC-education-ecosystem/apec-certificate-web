@@ -1,22 +1,16 @@
 "use client";
 import React, { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Calendar,
-  ExternalLink,
-  Check,
-  Loader2,
-  FingerprintIcon,
-} from "lucide-react";
+import { Calendar, ExternalLink, Check } from "lucide-react";
 import CopyIconButton from "@/components/copy-icon-button";
 import { getExplorerUrl } from "@/lib/network";
-import { useApecProgram } from "@/hooks/use-apec-program";
 import type { Certificate } from "@/lib/types";
 import { format } from "date-fns";
 import { getCourseImageProxyUrl } from "@/lib/utils";
 import Image from "next/image";
+import MintButton from "./mint-button";
+import ShowQrCodeButton from "@/components/show-qrcode-button";
 
 type CertificateCardProps = {
   certificate: Certificate;
@@ -27,14 +21,6 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
   certificate,
   showMintButton = false,
 }) => {
-  const { claimCertificate } = useApecProgram();
-
-  const { mutate, isPending } = claimCertificate(
-    certificate.courseId,
-    certificate.id,
-    certificate.wallet
-  );
-
   const courseImageUrl = useMemo(() => {
     return getCourseImageProxyUrl(certificate.courseId);
   }, [certificate.courseId]);
@@ -134,7 +120,7 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
 
         {/* Verification Badge */}
         {certificate.nftMint && (
-          <div className="pt-2">
+          <div className="flex items-end justify-between pt-2 gap-4">
             <Badge
               variant="default"
               className="gap-1 bg-green-600 hover:bg-green-700"
@@ -142,26 +128,25 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
               <Check className="h-3 w-3" />
               Verified on Solana
             </Badge>
+            {/* QR Code Button */}
+            <div className="pt-2">
+              <ShowQrCodeButton
+                content={getExplorerUrl(certificate.nftMint, "address")}
+                title="NFT Certificate"
+                description="Scan to view this NFT certificate on Solana Explorer"
+              />
+            </div>
           </div>
         )}
       </div>
 
       {/* Mint Button - only shown when showMintButton is true */}
       {showMintButton && !certificate.nftMint && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mt-3"
-          disabled={isPending}
-          onClick={() => mutate()}
-        >
-          {isPending ? (
-            <Loader2 className="size-4 mr-2 animate-spin" />
-          ) : (
-            <FingerprintIcon className="size-4 mr-2" />
-          )}
-          Mint Certificate
-        </Button>
+        <MintButton
+          courseId={certificate.courseId}
+          certificateId={certificate.id}
+          wallet={certificate.wallet}
+        />
       )}
     </div>
   );

@@ -19,8 +19,11 @@ export function proxy(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
   // Skip middleware for image proxy routes
-  if (pathname.startsWith("/image/")) {
-    console.log("Skipping middleware for image route:", pathname);
+  if (
+    pathname.startsWith("/image/") ||
+    pathname.startsWith("/metadata/") ||
+    pathname.startsWith("/profile/")
+  ) {
     return NextResponse.next();
   }
 

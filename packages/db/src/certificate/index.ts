@@ -75,3 +75,26 @@ export const getDbCertificateByUser = async (
 
   return certificates;
 };
+
+export const getDbCertificateByNftMint = async (nftMint: string) => {
+  const certificate = await db.query.dbCertificate.findFirst({
+    where: eq(dbCertificate.nftMint, nftMint),
+    with: {
+      course: {
+        columns: {
+          name: true,
+          shortName: true,
+        },
+        with: {
+          provider: {
+            columns: {
+              fullName: true,
+              shortName: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return certificate ?? null;
+};
