@@ -16,6 +16,11 @@ APEC OnChain Academy enables educational institutions and organizations to issue
 - 📊 **Course Management** - Create and manage courses with certificate templates
 - 🎨 **Modern UI** - Built with Next.js, TailwindCSS, and shadcn/ui
 
+### Some resource
+- [Profile](https://apec-learning-web.vercel.app/profile/D6ghYKKSngtijiDtyEjR1Q4PwQmeh24u5mgMFkvw4dq)
+- [NFT metadata](https://apec-learning-web.vercel.app/metadata/Hv2L4qCA3VcAN7GZYqPx5vhSwq1ekYXJMLm98woQHhYR.json)
+- [NFT image](https://apec-learning-web.vercel.app/image/certificate/Hv2L4qCA3VcAN7GZYqPx5vhSwq1ekYXJMLm98woQHhYR.png)
+
 ## Tech Stack
 
 ### Frontend & Framework
